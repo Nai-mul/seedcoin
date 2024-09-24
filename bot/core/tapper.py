@@ -1,5 +1,6 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
+from dateutil import parser
 from time import time
 from urllib.parse import unquote, quote
 
@@ -322,10 +323,19 @@ class Tapper:
                     if bird_data is None:
                         logger.info(f"{self.session_name} | Can't get bird data...")
                     elif bird_data['status'] == "hunting":
-                        given_time = datetime.fromisoformat(bird_data['hunt_end_at'])
-                        timestamp_naive = given_time.replace(tzinfo=None)
-                        now = datetime.utcnow()
-                        if now < timestamp_naive:
+                        given_time_str = bird_data['hunt_end_at']
+                        given_time_str = given_time_str.replace('Z', '+00:00')
+
+                        try:
+                           given_time = parser.isoparse(given_time_str)
+                        except ValueError as e:
+                           logger.error(f"Error parsing time: {e}")
+                           return
+
+                        # Make 'now' offset-aware
+                        now = datetime.now(timezone.utc)
+
+                        if now < given_time:
                             logger.info(f"{self.session_name} | Bird currently hunting...")
                         else:
                             logger.info(f"{self.session_name} | Hunt completed, claiming reward...")
