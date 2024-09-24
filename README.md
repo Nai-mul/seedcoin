@@ -1,5 +1,5 @@
 # SeedCoinBot
-🖱️ clicker for [https://t.me/seed_coin_bot](https://t.me/seed_coin_bot/app?startapp=558455838)
+🖱️ clicker for [https://t.me/seed_coin_bot](https://t.me/seed_coin_bot/app?startapp=722419931)
 
 ## Recommendation before use
 # 🔥🔥 Use PYTHON 3.10 🔥🔥
