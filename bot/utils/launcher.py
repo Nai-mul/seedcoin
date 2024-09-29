@@ -33,6 +33,7 @@ Select an action:
 
 global tg_clients
 
+# Get available session names
 def get_session_names() -> list[str]:
     session_names = sorted(glob.glob("sessions/*.session"))
     session_names = [
@@ -41,7 +42,7 @@ def get_session_names() -> list[str]:
 
     return session_names
 
-
+# Get available proxies
 def get_proxies() -> list[Proxy]:
     if settings.USE_PROXY_FROM_FILE:
         with open(file="bot/config/proxies.txt", encoding="utf-8-sig") as file:
@@ -51,7 +52,7 @@ def get_proxies() -> list[Proxy]:
 
     return proxies
 
-
+# Get list of Telegram clients for the sessions
 async def get_tg_clients() -> list[Client]:
     global tg_clients
 
@@ -76,37 +77,21 @@ async def get_tg_clients() -> list[Client]:
 
     return tg_clients
 
-
+# Main process
 async def process() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--action", type=int, help="Action to perform")
+    session_names = get_session_names()
 
-    logger.info(f"Detected {len(get_session_names())} sessions | {len(get_proxies())} proxies")
-
-    action = parser.parse_args().action
-
-    if not action:
-        print(start_text)
-
-        while True:
-            action = input("> ")
-
-            if not action.isdigit():
-                logger.warning("Action must be number")
-            elif action not in ["1", "2"]:
-                logger.warning("Action must be 1 or 2")
-            else:
-                action = int(action)
-                break
-
-    if action == 2:
-        await register_sessions()
-    elif action == 1:
+    if session_names:
+        # If sessions exist, auto-start the clicker
+        logger.info(f"Found {len(session_names)} session(s). Starting clicker...")
         tg_clients = await get_tg_clients()
-
         await run_tasks(tg_clients=tg_clients)
+    else:
+        # If no sessions found, show the start text and prompt to create a session
+        print(start_text)
+        await register_sessions()
 
-
+# Running the tapper with Telegram clients and proxies
 async def run_tasks(tg_clients: list[Client]):
     proxies = get_proxies()
     proxies_cycle = cycle(proxies) if proxies else None
@@ -121,3 +106,7 @@ async def run_tasks(tg_clients: list[Client]):
     ]
 
     await asyncio.gather(*tasks)
+
+# Entry point
+if __name__ == "__main__":
+    asyncio.run(process())
