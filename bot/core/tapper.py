@@ -408,7 +408,7 @@ class Tapper:
                     if settings.AUTO_CLEAR_TASKS:
                         await self.fetch_tasks(http_client)
 
-                delay_time = randint(3400, 3600)
+                delay_time = randint(3600, 7200)
                 logger.info(f"{self.session_name} | Completed {self.session_name}, waiting {delay_time} seconds...")
                 await asyncio.sleep(delay=delay_time)
             except InvalidSession as error:
